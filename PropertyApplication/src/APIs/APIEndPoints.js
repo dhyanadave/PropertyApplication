@@ -1,0 +1,1 @@
+export const PropertyAPI = 'https://api.housivity.com/api/v1/property?city=Gandhinagar&projectType=["pgHostel"]&page=1'
