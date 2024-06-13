@@ -16,6 +16,10 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import MapIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {sizeFont, sizeHeight, sizeWidth} from '../../utils/Utils';
 
+import {addProperty, removeProperty} from '../Redux/actions';
+import {useDispatch, useSelector} from 'react-redux';
+import {home_screen} from '../../utils/Conts';
+
 interface Property {
   id: string;
   name: string;
@@ -26,6 +30,8 @@ interface Property {
 const HomeScreen: React.FC = () => {
   const [data, setData] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const likedProperties = useSelector(state => state.likedProperties);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,9 +56,14 @@ const HomeScreen: React.FC = () => {
     fetchData();
   }, []);
 
-  const toggleLiked = (id: string) => {
+  const toggleLiked = property => {
+    if (property.liked) {
+      dispatch(removeProperty(property.id));
+    } else {
+      dispatch(addProperty(property));
+    }
     const updatedData = data.map(item =>
-      item.id === id ? {...item, liked: !item.liked} : item,
+      item.id === property.id ? {...item, liked: !item.liked} : item,
     );
     setData(updatedData);
   };
@@ -83,7 +94,7 @@ const HomeScreen: React.FC = () => {
                 ₹{item.displayPrice.fixedPrice.toLocaleString()}
               </AppText>
             )}
-            <TouchableOpacity onPress={() => toggleLiked(item.id)}>
+            <TouchableOpacity onPress={() => toggleLiked(item)}>
               <Icon
                 name={item.liked ? 'heart' : 'heart-outline'}
                 size={sizeWidth(6)}
@@ -112,14 +123,23 @@ const HomeScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <AppText>{home_screen}</AppText>
+      </View>
       {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : (
-        <FlatList
-          data={data}
-          keyExtractor={item => item.id}
-          renderItem={renderItem}
+        <ActivityIndicator
+          style={{flex: 1, alignSelf: 'center'}}
+          size="large"
+          color="#0000ff"
         />
+      ) : (
+        <View style={styles.flatListView}>
+          <FlatList
+            data={data}
+            keyExtractor={item => item.id}
+            renderItem={renderItem}
+          />
+        </View>
       )}
     </SafeAreaView>
   );
@@ -128,15 +148,16 @@ const HomeScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: sizeWidth(3),
-    backgroundColor: colors.light_gray,
+    backgroundColor: colors.white,
   },
   card: {
     marginBottom: sizeHeight(2),
     borderRadius: sizeWidth(3),
     backgroundColor: colors.white,
     padding: sizeWidth(3.5),
-    elevation: 3,
+    elevation: 2,
+    borderColor: colors.light_gray,
+    borderWidth: sizeWidth(0.2),
   },
   image: {
     width: sizeWidth(65),
@@ -160,8 +181,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: sizeHeight(2),
   },
+  flatListView: {padding: sizeWidth(3)},
+  header: {
+    width: '100%',
+    backgroundColor: colors.white,
+    elevation: 3,
+    marginBottom: sizeHeight(0.5),
+    padding: sizeWidth(3),
+  },
 });
 
 export default HomeScreen;
-
-

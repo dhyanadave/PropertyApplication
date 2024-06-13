@@ -5,7 +5,7 @@ import AppText from '../Components/AppText'
 const InvestorScreen = () => {
   return (
     <View>
-      <AppText>InvestorScreen</AppText>
+      <AppText>Investor</AppText>
     </View>
   )
 }
